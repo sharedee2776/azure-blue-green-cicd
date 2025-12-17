@@ -25,7 +25,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t $ACR_IMAGE: ${{ github.sha }} ./app
+        docker build -t $ACR_IMAGE:${{ github.sha }} ./app
         docker tag $ACR_IMAGE:${{ github.sha }} $ACR_IMAGE:latest
 
     - name: Push Docker image
@@ -36,7 +36,7 @@ jobs:
     - name: Login to Azure
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets. AZURE_CREDENTIALS }}
 
     - name: Deploy to staging slot
       uses: azure/webapps-deploy@v3
