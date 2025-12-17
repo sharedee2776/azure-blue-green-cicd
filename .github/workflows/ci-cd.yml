@@ -46,8 +46,8 @@ jobs:
 
     - name: Health check (staging)
       run: |
-        ./scripts/healthcheck.sh https://${{ env.APP_NAME }}-staging.azurewebsites.net
+        ./scripts/health-check.sh https://${{ env.APP_NAME }}-staging.azurewebsites.net
 
     - name: Swap slots
       run: |
-        ./scripts/swapslots.sh ${{ env.RESOURCE_GROUP }} ${{ env.APP_NAME }}
+        ./scripts/swap-slots.sh ${{ env.RESOURCE_GROUP }} ${{ env.APP_NAME }}

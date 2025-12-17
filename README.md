@@ -121,11 +121,50 @@ staging
 
 Deployments are always performed to the staging slot first, ensuring production stability.
 
-🔐 Required GitHub Secrets
-Secret Name	Description
-AZURE_CREDENTIALS	Azure Service Principal JSON
-DOCKER_USERNAME	Docker Hub username
-DOCKER_PASSWORD	Docker Hub access token
+## 🔐 Required GitHub Secrets
+
+⚠️ **IMPORTANT:** You must configure these secrets before the CI/CD pipeline can run successfully.
+
+### How to Add Secrets
+
+1. Go to your repository on GitHub
+2. Click **Settings** → **Secrets and variables** → **Actions**
+3. Click **New repository secret**
+4. Add each of the following secrets:
+
+| Secret Name | Description | How to Get It |
+|------------|-------------|---------------|
+| `DOCKER_USERNAME` | Docker Hub username | Your Docker Hub account username (e.g., `sharedee2776`) |
+| `DOCKER_PASSWORD` | Docker Hub access token | **Recommended:** Create a [Docker Access Token](https://hub.docker.com/settings/security) instead of using your password |
+| `AZURE_CREDENTIALS` | Azure Service Principal JSON | Run: `az ad sp create-for-rbac --name "github-actions" --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} --sdk-auth` |
+
+### Docker Hub Access Token Setup (Recommended)
+
+Instead of using your Docker Hub password, create a Personal Access Token:
+
+1. Log in to [Docker Hub](https://hub.docker.com/)
+2. Go to **Account Settings** → **Security**
+3. Click **New Access Token**
+4. Name: `github-actions-cicd`
+5. Permissions: **Read & Write**
+6. Click **Generate** and copy the token
+7. Use this token as the value for `DOCKER_PASSWORD` secret
+
+### Azure Service Principal Setup
+
+Run this Azure CLI command to create credentials:
+
+```bash
+az ad sp create-for-rbac \
+  --name "github-actions-blue-green" \
+  --role contributor \
+  --scopes /subscriptions/{subscription-id}/resourceGroups/devops-rg \
+  --sdk-auth
+```
+
+Copy the entire JSON output and paste it as the `AZURE_CREDENTIALS` secret value.
+
+> 💡 **Troubleshooting:** If your workflow is failing, see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for detailed solutions to common issues.
 🩺 Health Check
 
 The application exposes a health endpoint:
