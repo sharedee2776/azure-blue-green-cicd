@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.log
+*.tfstate
+*.tfstate.backup
+node_modules/
