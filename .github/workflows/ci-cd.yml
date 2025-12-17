@@ -48,17 +48,17 @@ jobs:
           --is-linux \
           --sku B1 || true
 
-    - name: Create Web App if not exists
+    - name:  Create Web App if not exists
       run: |
-        if ! az webapp show --name ${{ env.APP_NAME }} --resource-group ${{ env. RESOURCE_GROUP }} 2>/dev/null; then
+        if ! az webapp show --name ${{ env. APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} 2>/dev/null; then
           az webapp create \
             --name ${{ env.APP_NAME }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --plan ${{ env. APP_NAME }}-plan \
+            --plan ${{ env.APP_NAME }}-plan \
             --deployment-container-image-name ${{ env.ACR_IMAGE }}:latest
         fi
 
-    - name: Configure Web App for containers
+    - name:  Configure Web App for containers
       run: |
         az webapp config container set \
           --name ${{ env.APP_NAME }} \
@@ -68,7 +68,7 @@ jobs:
         # Set the port that the container listens on
         az webapp config appsettings set \
           --name ${{ env.APP_NAME }} \
-          --resource-group ${{ env. RESOURCE_GROUP }} \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
           --settings WEBSITES_PORT=8000
 
     - name: Restart Web App
