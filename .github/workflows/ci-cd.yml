@@ -5,79 +5,79 @@ on:
     branches: [ "main" ]
 
 env: 
-  APP_NAME:   my-devops-app-sharedee2776
+  APP_NAME:  my-devops-app-sharedee2776
   RESOURCE_GROUP: devops-rg
-  ACR_IMAGE:  sharedee2776/blue-green-app
-  LOCATION:  westeurope
+  ACR_IMAGE: sharedee2776/blue-green-app
+  LOCATION: westeurope
 
 jobs:   
   build-deploy: 
-    runs-on:   ubuntu-latest
+    runs-on:  ubuntu-latest
 
     steps:  
     - name:  Checkout code
       uses: actions/checkout@v4
 
-    - name:   Login to Docker Hub
+    - name: Login to Docker Hub
       uses:  docker/login-action@v3
       with: 
-        username: ${{ secrets. DOCKER_USERNAME }}
-        password:  ${{ secrets.DOCKER_PASSWORD }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run:  |
-        docker build -t $ACR_IMAGE:${{ github.sha }} ./app
+      run: |
+        docker build -t $ACR_IMAGE: ${{ github.sha }} ./app
         docker tag $ACR_IMAGE:${{ github.sha }} $ACR_IMAGE:latest
 
     - name: Push Docker image
-      run:  |
+      run: |
         docker push $ACR_IMAGE:${{ github.sha }}
         docker push $ACR_IMAGE:latest
 
     - name: Login to Azure
-      uses:  azure/login@v1
+      uses: azure/login@v1
       with:  
-        creds:  ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets. AZURE_CREDENTIALS }}
 
     - name: Create App Service Plan if not exists
-      run:   |
+      run: |
         az appservice plan create \
           --name ${{ env.APP_NAME }}-plan \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --resource-group ${{ env. RESOURCE_GROUP }} \
           --location ${{ env.LOCATION }} \
           --is-linux \
           --sku B1 || true
 
     - name: Create Web App if not exists
-      run:   |
-        if ! az webapp show --name ${{ env.APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} 2>/dev/null; then
+      run: |
+        if ! az webapp show --name ${{ env.APP_NAME }} --resource-group ${{ env. RESOURCE_GROUP }} 2>/dev/null; then
           az webapp create \
             --name ${{ env.APP_NAME }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --plan ${{ env.APP_NAME }}-plan \
-            --deployment-container-image-name ${{ env. ACR_IMAGE }}:latest
+            --plan ${{ env. APP_NAME }}-plan \
+            --deployment-container-image-name ${{ env.ACR_IMAGE }}:latest
         fi
 
     - name: Configure Web App for containers
-      run:  |
+      run: |
         az webapp config container set \
           --name ${{ env.APP_NAME }} \
-          --resource-group ${{ env. RESOURCE_GROUP }} \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
           --docker-custom-image-name ${{ env.ACR_IMAGE }}:latest
         
         # Set the port that the container listens on
         az webapp config appsettings set \
           --name ${{ env.APP_NAME }} \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --resource-group ${{ env. RESOURCE_GROUP }} \
           --settings WEBSITES_PORT=8000
 
-    - name:  Restart Web App
-      run:  |
-        az webapp restart --name ${{ env.APP_NAME }} --resource-group ${{ env. RESOURCE_GROUP }}
+    - name: Restart Web App
+      run: |
+        az webapp restart --name ${{ env.APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
 
-    - name: Health check
+    - name:  Health check
       run: |
         echo "Waiting for deployment to complete..."
         sleep 60
-        curl -f https://${{ env.APP_NAME }}. azurewebsites. net || echo "Health check failed but app may still be starting"
+        curl -f https://${{ env.APP_NAME }}.azurewebsites.net || echo "Health check failed but app may still be starting"
         echo "App URL: https://${{ env.APP_NAME }}.azurewebsites.net"
