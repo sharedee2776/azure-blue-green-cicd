@@ -1,0 +1,53 @@
+name: CI/CD Azure Blue-Green
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  APP_NAME: my-devops-app
+  RESOURCE_GROUP: devops-rg
+  ACR_IMAGE: sharedee2776/blue-green-app
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Login to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
+          -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build Docker image
+      run: |
+        docker build -t $ACR_IMAGE:${{ github.sha }} ./app
+        docker tag $ACR_IMAGE:${{ github.sha }} $ACR_IMAGE:latest
+
+    - name: Push Docker image
+      run: |
+        docker push $ACR_IMAGE:${{ github.sha }}
+        docker push $ACR_IMAGE:latest
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to staging slot
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.APP_NAME }}
+        slot-name: staging
+        images: ${{ env.ACR_IMAGE }}:latest
+
+    - name: Health check (staging)
+      run: |
+        ./scripts/healthcheck.sh https://${{ env.APP_NAME }}-staging.azurewebsites.net
+
+    - name: Swap slots
+      run: |
+        ./scripts/swapslots.sh ${{ env.RESOURCE_GROUP }} ${{ env.APP_NAME }}
