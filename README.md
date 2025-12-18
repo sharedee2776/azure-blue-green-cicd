@@ -80,7 +80,9 @@ Slot Swap (Blue-Green)
 
 ---
 
-## 🔄 CI/CD Pipeline Workflow
+
+
+### 🔄 CI/CD Pipeline Workflow
 
 ### Trigger
 - Any push to the `main` branch
@@ -96,14 +98,14 @@ Slot Swap (Blue-Green)
 
 ---
 
-## 🐳 Docker Setup
+
+### 🐳 Docker Setup
 
 The application is fully containerized using Docker.
 
 ### Build Image Locally
 ```bash
 docker build -t myapp:latest ./app
-
 Run Locally
 docker run -d -p 5000:5000 myapp:latest
 
@@ -176,6 +178,8 @@ Example response:
 
 { "status": "ok" }
 
+---
+
 
 The CI/CD pipeline verifies this endpoint before slot swapping.
 
@@ -198,15 +202,23 @@ Add unit and integration testing
 
 Convert infrastructure to IaC (Bicep / Terraform)
 
+---
+
+
 👤 Author
 
 Adedamola Dauda
+
 Aspiring DevOps Engineer
+
 Focused on Cloud, CI/CD, Docker, and Linux Automation
 
 🧠 Why This Project Matters
 
 This project reflects real-world DevOps workflows used in production systems and demonstrates the skills required for modern DevOps and Cloud Engineer roles.
+
+---
+
 
 ✅ How to Run the Pipeline
 
@@ -215,6 +227,8 @@ Push code to main branch
 GitHub Actions triggers automatically
 
 Application is deployed with zero downtime
+
+
 
 📎 License
 
